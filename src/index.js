@@ -46,6 +46,32 @@ server.get('/libros_disponibles', async (req,res)=>{
   } 
 });
 
+/*
+He creado la función de autorización pero no me funciona, me da un error json syntax error pero no lo encuentro
+
+function tokenAuthentication(req, res, next){
+  const tokenUser = req.headers.authorization;
+  
+  if(!tokenUser){
+    res.status(400).json({
+      success: false,
+      message: 'Usuario no autorizado.'
+    });
+  }else{
+    try {
+    const token = tokenUser.split(' ')[1];
+    const tokenVerification = jwt.verify(token, 'examen');
+    req.userData = tokenVerification;
+  } catch (error) {
+    res.status(400).json({
+      success:false, 
+      message: error
+    })
+  }
+    next();
+  }  
+};*/
+
 //Insertar una entrada en su entidad principal.
 server.post('/nuevo_libro', async (req,res)=>{
   try {
