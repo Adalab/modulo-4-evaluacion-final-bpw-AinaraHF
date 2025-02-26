@@ -2,6 +2,8 @@
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 //Crear el servidor
 const server = express();
@@ -113,6 +115,69 @@ server.delete('/libros_disponibles/:idLibro', async (req,res)=>{
       })
     }
     
+  } catch (error) {
+    res.status(500).json(error);
+  } 
+});
+
+//Registrar usuario
+server.post('/registrarse', async (req,res)=>{
+  try {
+    const conex = await connectDB();
+    const { nombre, email, password } = req.body;
+    const selectEmail = 'SELECT email FROM usuarios_db WHERE email=?';
+    const [resultEmail] = await conex.query(selectEmail, [email]);
+    if(resultEmail.length === 0){
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newUser = 'INSERT INTO usuarios_db (nombre, email, password) VALUES (?,?,?)';
+      const [resultNewUser] = await conex.query(newUser, [nombre, email, hashedPassword]);
+      conex.end();
+      res.status(201).json({
+        success: true, 
+        idLibro: resultNewUser.insertId
+      });
+    }else{
+      res.status(200).json({
+        success: false,
+        message: 'Usuario ya registrado.'
+      })
+    }    
+  } catch (error) {
+    res.status(500).json(error);
+  } 
+});
+
+//Loguear usuario
+server.post('/loguearse', async (req,res)=>{
+  try {
+    const conex = await connectDB();
+    const { email, password } = req.body;
+    const selectEmail = 'SELECT * FROM usuarios_db WHERE email=?';
+    const [resultEmail] = await conex.query(selectEmail, [email]);
+    if(resultEmail.length !== 0){
+      const dbPassword = resultEmail[0].password;
+      const isPasswordCorrect = await bcrypt.compare(password, dbPassword);
+      if(isPasswordCorrect){
+        const userToken = {email: resultEmail[0].email, idUsuario: resultEmail[0].idUsuario};
+        const token = jwt.sign(userToken, 'examen', {expiresIn: '1h'});
+        res.status(201).json({
+          success: true,
+          token: token
+        })
+      }else{
+        res.status(200).json({
+          success: false,
+          message: 'Contraseña incorrecta.'
+        })
+      }
+      conex.end();
+      
+    }else{
+      res.status(200).json({
+        success: false,
+        message: 'Email incorrecto.'
+      })
+    }    
   } catch (error) {
     res.status(500).json(error);
   } 

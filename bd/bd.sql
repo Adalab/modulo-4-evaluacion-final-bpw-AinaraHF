@@ -16,3 +16,10 @@ VALUES ('Harry Potter y la piedra filosofal', 'J.K. Rowling', 'fantasia', '1997-
 ('Brazen', 'Julia Haart', 'biografia', '2022-03-08', 416);
 
 SELECT * FROM libros;
+
+CREATE TABLE usuarios_db (
+idUsuario INT auto_increment primary key,
+email VARCHAR(60) not null unique,
+nombre VARCHAR(60),
+password VARCHAR(60)
+);
