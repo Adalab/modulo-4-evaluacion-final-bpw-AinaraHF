@@ -48,18 +48,14 @@ server.get('/libros_disponibles', async (req,res)=>{
 server.post('/nuevo_libro', async (req,res)=>{
   try {
     const conex = await connectDB();
-    const titulo = req.body.titulo;
-    const autor = req.body.autor;
-    const genero = req.body.genero;
-    const fecha_publi = req.body.fecha_publi;
-    const num_paginas = req.body.num_paginas;
+    const { titulo, autor, genero, fecha_publi, num_paginas } = req.body;
     const selectNewBook = 'INSERT INTO libros (titulo, autor, genero, fecha_publi, num_paginas) VALUES (?,?,?,?,?)';
     const [resultNewBook] = await conex.query(selectNewBook, [titulo, autor, genero, fecha_publi, num_paginas]);
     conex.end();
     if(resultNewBook){
       res.status(201).json({
       success: true, 
-      idLibro: result.insertId
+      idLibro: resultNewBook.insertId
     });
     }else{
       res.status(400).json({
