@@ -46,9 +46,6 @@ server.get('/libros_disponibles', async (req,res)=>{
   } 
 });
 
-/*
-He creado la función de autorización pero no me funciona, me da un error json syntax error pero no lo encuentro
-
 function tokenAuthentication(req, res, next){
   const tokenUser = req.headers.authorization;
   
@@ -70,10 +67,10 @@ function tokenAuthentication(req, res, next){
   }
     next();
   }  
-};*/
+};
 
 //Insertar una entrada en su entidad principal.
-server.post('/nuevo_libro', async (req,res)=>{
+server.post('/nuevo_libro', tokenAuthentication, async (req,res)=>{
   try {
     const conex = await connectDB();
     const { titulo, autor, genero, fecha_publi, num_paginas } = req.body;
